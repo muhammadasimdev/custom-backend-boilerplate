@@ -1,15 +1,9 @@
-const express = require('express');
-const authController = require('../controllers/auth.controller');
-const validate = require('../middlewares/validate.middleware');
-const { registerSchema, loginSchema } = require('../validations/auth.validation');
+import express from 'express';
+import { signup, login } from '../controllers/auth.controller.js';
 
 const router = express.Router();
 
-// POST /api/v1/auth/register
-// The request must pass 'validate(registerSchema)' before hitting 'authController.register'
-router.post('/register', validate(registerSchema), authController.register);
+router.post('/signup', signup);
+router.post('/login', login);
 
-// POST /api/v1/auth/login
-router.post('/login', validate(loginSchema), authController.login);
-
-module.exports = router;
+export default router;
