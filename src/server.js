@@ -11,11 +11,16 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+// CORS Configuration
+app.use(cors({
+  origin: 'http://localhost:5173', // Vite default port
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Routes Mount Points
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes); // Fixed: changed auth.Routes to authRoutes
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/ai', aiRoutes);
 
