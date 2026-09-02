@@ -11,26 +11,41 @@ dotenv.config();
 
 const app = express();
 
-// CORS Configuration
+// 1. Dynamic CORS Configuration (Allows Localhost + Vercel + Postman)
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite default port
-  credentials: true
+  origin: true, // Automatically reflects the requesting origin (Vercel, Localhost, etc.)
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Handle preflight requests for all endpoints
+app.options('*', cors());
 
 app.use(express.json());
 
+// Root health check endpoint for Railway
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'Civic Complaints Backend API is active.' });
+});
+
 // Routes Mount Points
-app.use('/api/auth', authRoutes); // Fixed: changed auth.Routes to authRoutes
+app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/ai', aiRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/medflow_complaints';
 
+// 2. Start Express server immediately (Railway requires the port open right away)
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server actively listening on port ${PORT}`);
+});
+
+// 3. Connect to MongoDB asynchronously with a 5-second failure timeout
 mongoose
-  .connect(MONGO_URI)
-  .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  .connect(MONGO_URI, {
+    serverSelectionTimeoutMS: 5000,
   })
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .then(() => console.log('Successfully connected to MongoDB'))
+  .catch((err) => console.error('MongoDB connection error:', err.message));
