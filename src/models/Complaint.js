@@ -8,7 +8,7 @@ const complaintSchema = new mongoose.Schema(
     area: { type: String, required: true },
     status: {
       type: String,
-      enum: ['pending', 'in-progress', 'resolved'],
+      enum: ['pending', 'in-progress', 'resolved'], // MUST match frontend exact casing
       default: 'pending',
     },
     upvotes: { type: Number, default: 0 },
@@ -39,3 +39,6 @@ complaintSchema.virtual('priority').get(function () {
 });
 
 export default mongoose.model('Complaint', complaintSchema);
+
+
+
